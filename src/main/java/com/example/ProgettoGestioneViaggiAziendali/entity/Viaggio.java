@@ -1,9 +1,10 @@
 package com.example.ProgettoGestioneViaggiAziendali.entity;
 
+import com.example.ProgettoGestioneViaggiAziendali.Enum.StatoViaggio;
 import jakarta.persistence.*;
 import lombok.Data;
-
 import java.time.LocalDate;
+import java.util.List;
 
 @Entity
 @Data
@@ -13,10 +14,14 @@ public class Viaggio {
     private Long idViaggio;
 
     @Column(nullable = false)
-    private String descrizione;
-    private LocalDate dataViaggio;
+    private String destinazione;
 
+    @Column(nullable = false)
+    private LocalDate data;
 
-    private String stato;
+    @Enumerated(EnumType.STRING)
+    private StatoViaggio stato;
 
+    @OneToMany(mappedBy = "viaggio", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Prenotazione> prenotazioni;
 }

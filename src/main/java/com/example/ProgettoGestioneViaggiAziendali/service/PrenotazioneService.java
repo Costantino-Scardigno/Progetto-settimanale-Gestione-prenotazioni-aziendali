@@ -2,7 +2,9 @@ package com.example.ProgettoGestioneViaggiAziendali.service;
 
 
 
+import com.example.ProgettoGestioneViaggiAziendali.entity.Dipendente;
 import com.example.ProgettoGestioneViaggiAziendali.entity.Prenotazione;
+import com.example.ProgettoGestioneViaggiAziendali.entity.Viaggio;
 import com.example.ProgettoGestioneViaggiAziendali.repository.DipendenteRepository;
 import com.example.ProgettoGestioneViaggiAziendali.repository.PrenotazioneRepository;
 import com.example.ProgettoGestioneViaggiAziendali.repository.ViaggioRepository;
@@ -25,23 +27,21 @@ public class PrenotazioneService {
     @Autowired
     private ViaggioRepository viaggioRepository;
 
-
+    // METODO PER CREARE UNA PRENOTAZIONE
     public Prenotazione prenotaViaggio(Prenotazione prenotazione) {
-        Prenotazione nuovaPrenotazione = new Prenotazione();
-        nuovaPrenotazione.setDipendente(prenotazione.getDipendente());
-        nuovaPrenotazione.setViaggio(prenotazione.getViaggio());
-        nuovaPrenotazione.setDataRichiesta(LocalDate.now());
-        nuovaPrenotazione.setNote(prenotazione.getNote());
-
-        return prenotazioneRepository.save(nuovaPrenotazione);
+        return prenotazioneRepository.save(prenotazione);
+    }
+    // METODO PER VERIFICARE SE UN UTENTE HA GIA PRENOTATO PER UN VIAGGIO
+    public boolean esistePrenotazionePerData(Dipendente dipendente, Viaggio viaggio) {
+        return prenotazioneRepository.existsByDipendenteAndViaggio_Data(dipendente, viaggio.getData());
     }
 
-
+    // METODO PER RICEVERE TUTTE LE PRENOTAZIONI
     public List<Prenotazione> getAllPrenotazioni() {
         return prenotazioneRepository.findAll();
 
 }
-
+   // METODO PER ELIMINARE UNA PRENOTAZIONE
     public  boolean eliminaPrenotazione(Long id){
         Optional <Prenotazione> prenotazione= prenotazioneRepository.findById(id);
         if (prenotazione.isPresent()){
@@ -50,6 +50,11 @@ public class PrenotazioneService {
         } else {
             return false;
         }
+    }
+
+    // Metodo per eliminare tutte le prenotazioni
+    public void eliminaTutteLePrenotazioni() {
+        prenotazioneRepository.deleteAll();
     }
 
 

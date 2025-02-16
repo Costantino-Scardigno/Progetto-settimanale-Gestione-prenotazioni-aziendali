@@ -5,38 +5,31 @@ import com.example.ProgettoGestioneViaggiAziendali.entity.Dipendente;
 import com.example.ProgettoGestioneViaggiAziendali.entity.Prenotazione;
 import com.example.ProgettoGestioneViaggiAziendali.entity.Viaggio;
 import com.example.ProgettoGestioneViaggiAziendali.repository.DipendenteRepository;
-import com.example.ProgettoGestioneViaggiAziendali.repository.PrenotazioneRepository;
 import com.example.ProgettoGestioneViaggiAziendali.repository.ViaggioRepository;
 import com.example.ProgettoGestioneViaggiAziendali.service.PrenotazioneService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.jpa.repository.support.SimpleJpaRepository;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
-import java.util.Optional;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api")
 public class PrenotazioneController {
 
     @Autowired
-    PrenotazioneService prenotazioneService;
+    private PrenotazioneService prenotazioneService;
 
     @Autowired
     private DipendenteRepository dipendenteRepository;
 
     @Autowired
     private ViaggioRepository viaggioRepository;
-    @Autowired
-    private PrenotazioneRepository prenotazioneRepository;
 
-
-
-    // METODO PER CREARE UNA PRENOTAZIONE
+    // ENDPOINT PER CREARE UNA PRENOTAZIONE (RESTITUISCE DTO)
     @PostMapping("/prenotazione")
     public ResponseEntity<?> aggiungiPrenotazione(@RequestBody PrenotazioneDTO prenotazioneDTO) {
         if (prenotazioneDTO.getDipendenteId() == null) {
@@ -48,10 +41,14 @@ public class PrenotazioneController {
 
         Dipendente dipendente = dipendenteRepository.findById(prenotazioneDTO.getDipendenteId())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Dipendente non trovato"));
+
         Viaggio viaggio = viaggioRepository.findById(prenotazioneDTO.getViaggioId())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Viaggio non trovato"));
 
-
+        boolean esistePrenotazione= prenotazioneService.esistePrenotazionePerData(dipendente,viaggio);
+        if (esistePrenotazione){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("IL DIPENDENTE HA GIA UNA PRENOTAZIONE PER QUESTA DATA");
+        }
         Prenotazione prenotazione = new Prenotazione();
         prenotazione.setDipendente(dipendente);
         prenotazione.setViaggio(viaggio);
@@ -60,35 +57,41 @@ public class PrenotazioneController {
 
         Prenotazione nuovaPrenotazione = prenotazioneService.prenotaViaggio(prenotazione);
 
-        return ResponseEntity.status(HttpStatus.CREATED).body(nuovaPrenotazione);
+        return ResponseEntity.status(HttpStatus.CREATED).body(new PrenotazioneDTO(nuovaPrenotazione));
     }
 
-    // METODO PER RECUPERARE LE PRENOTAZIONI
+
+    //  ENDPOINT PER RECUPERARE LE PRENOTAZIONI (RESTITUISCE LISTA DI DTO)
     @GetMapping("/prenotazioni")
-    public ResponseEntity<?> recuperaDipendenti(){
+    public ResponseEntity<?> recuperaPrenotazioni() {
         List<Prenotazione> prenotazioni = prenotazioneService.getAllPrenotazioni();
         if (prenotazioni.isEmpty()) {
-
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("LA LISTA DELLE PRENOTAZIONI E' VUOTA");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("LA LISTA DELLE PRENOTAZIONI È VUOTA");
         }
-        return new ResponseEntity<>(prenotazioni, HttpStatus.OK);
+
+        // Convertire la lista in DTO
+        List<PrenotazioneDTO> prenotazioniDTO = prenotazioni.stream()
+                .map(PrenotazioneDTO::new)
+                .collect(Collectors.toList());
+
+        return new ResponseEntity<>(prenotazioniDTO, HttpStatus.OK);
     }
 
-    // METODO PER ELIMINARE UNA PRENOTAZIONE
+    //  ENDPOINT PER ELIMINARE UNA PRENOTAZIONE
     @DeleteMapping("/prenotazione/{id}/elimina")
-    public ResponseEntity<?>  eliminaPrenotazione(@PathVariable Long id){
-        boolean eliminato= prenotazioneService.eliminaPrenotazione(id);
-        if (eliminato){
-            return new ResponseEntity<>("Prenotazione eliminata con sucesso!", HttpStatus.NO_CONTENT);
+    public ResponseEntity<?> eliminaPrenotazione(@PathVariable Long id) {
+        boolean eliminato = prenotazioneService.eliminaPrenotazione(id);
+        if (eliminato) {
+            return ResponseEntity.status(HttpStatus.NO_CONTENT).body("Prenotazione eliminata con successo!");
         } else {
-            return new ResponseEntity<>("Prenotazione non trovato!", HttpStatus.NOT_FOUND);
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Prenotazione non trovata!");
         }
     }
 
-
-
-
-
-
-
+    // ENDPOINT per eliminare tutte le prenotazioni
+    @DeleteMapping("/prenotazioni/eliminaTutte")
+    public ResponseEntity<?> eliminaTutteLePrenotazioni() {
+        prenotazioneService.eliminaTutteLePrenotazioni();
+        return ResponseEntity.status(HttpStatus.OK).body("Tutte le prenotazioni sono state eliminate.");
+    }
 }

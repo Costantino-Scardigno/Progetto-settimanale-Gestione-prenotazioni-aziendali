@@ -6,7 +6,7 @@ import com.example.ProgettoGestioneViaggiAziendali.entity.Viaggio;
 import com.example.ProgettoGestioneViaggiAziendali.service.ViaggioService;
 import jakarta.validation.constraints.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpHeaders;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -21,18 +21,17 @@ public class ViaggioController {
     @Autowired
     private ViaggioService viaggioService;
 
-    // Metodo per recuperere tutti i viaggi
+    // ENDPOINT per recuperere tutti i viaggi
     @GetMapping("/viaggi")
-    public ResponseEntity<List<Viaggio>> getAllViaggi() {
+    public ResponseEntity<?> getAllViaggi() {
         List<Viaggio> viaggi=viaggioService.getAllViaggi();
         if (viaggi.isEmpty()){
-            HttpHeaders headers = new HttpHeaders();
-            headers.add("Custom-Message", "LA LISTA DEI VIAGGI E' VUOTA");
+           return ResponseEntity.status(HttpStatus.NOT_FOUND).body("LA LISTA DEI VIAGGI E' VUOTA");
         }
         return new ResponseEntity<>(viaggi, HttpStatus.OK);
     }
 
-    // Metodo per creare un viaggio
+    // ENDPOINT per creare un viaggio
     @PostMapping("/viaggio")
     public ResponseEntity<?> creaViaggio(@RequestBody @NotNull Viaggio viaggio){
         if (viaggio.getIdViaggio() !=null) {
@@ -42,7 +41,7 @@ public class ViaggioController {
         return new ResponseEntity<>(creazioneViaggio, HttpStatus.CREATED);
     }
 
-    // Metodo per modificare lo stato
+    // ENDPOINT per modificare lo stato
     @PutMapping("/viaggio/{id}/stato")
     public ResponseEntity<Viaggio> modificaStatoViaggio(@PathVariable Long id, @RequestBody StatoViaggio stato){
         Optional<Viaggio> viaggioModificato= viaggioService.modificaStato(id,stato);
@@ -51,7 +50,7 @@ public class ViaggioController {
 
     }
 
-    // Metodo per eliminare un viaggio
+    // ENDPOINT per eliminare un viaggio
 
     @DeleteMapping("/viaggio/{id}/elimina")
     public ResponseEntity<String> eliminaViaggio(@PathVariable Long id) {
@@ -62,4 +61,15 @@ public class ViaggioController {
             return new ResponseEntity<>("Viaggio non trovato!", HttpStatus.NOT_FOUND);
         }
     }
+    // ENDPOINT PER ELIMINARE TUTTI I VIAGGI
+
+    @DeleteMapping("/viaggi/eliminaTutti")
+    public ResponseEntity<?> eliminaTuttiViaggi() {
+        viaggioService.eliminaTuttiViaggi();
+        return ResponseEntity.status(HttpStatus.OK).body("TUTTI I VIAGGI SONO STATI ELIMINATI CON SUCCESSO");
+
+    }
+
+
+
 }

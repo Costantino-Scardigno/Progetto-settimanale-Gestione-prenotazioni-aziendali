@@ -20,9 +20,24 @@ public class Dipendente {
     @Column(unique = true, nullable = false)
     private String email;
 
-    @Lob
-    private byte[] immagineProfilo;
+
+    private String immagineProfilo;
 
     @OneToMany(mappedBy = "dipendente", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Prenotazione> prenotazioni;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 }

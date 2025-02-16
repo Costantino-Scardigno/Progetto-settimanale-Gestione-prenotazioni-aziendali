@@ -42,6 +42,10 @@ public class ViaggioService {
         }
     }
 
+    public void eliminaTuttiViaggi(){
+        viaggioRepository.deleteAll();
+    }
+
 }
 
 

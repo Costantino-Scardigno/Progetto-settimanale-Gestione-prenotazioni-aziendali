@@ -15,11 +15,13 @@ public class ViaggioDTO {
     private LocalDate data;
     private StatoViaggio stato;
 
-    // Costruttore per trasformare un Viaggio in ViaggioDTO
-    public ViaggioDTO(Viaggio viaggio) {
-        this.idViaggio = viaggio.getIdViaggio();
-        this.destinazione = viaggio.getDestinazione();
-        this.data = viaggio.getData();
-        this.stato = viaggio.getStato();
+
+
+    public ViaggioDTO(Long idViaggio, LocalDate data, String destinazione, StatoViaggio stato) {
+        this.idViaggio = idViaggio;
+        this.destinazione = destinazione;
+        this.data = data;
+        this.stato = stato;
+
     }
 }

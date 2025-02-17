@@ -29,6 +29,7 @@ public class DipendenteController {
     CloudinaryService cloudinaryService;
 
     // ENDPOINT PER AGGIUNGERE UN DIPENDENTE
+    // http://localhost:8080/api/dipendente
     @PostMapping("/dipendente")
     public ResponseEntity<Dipendente> aggiungiDipendente(@RequestBody Dipendente dipendente){
         Dipendente nuovoDipendente = dipendenteService.aggiungiDipendente(dipendente);
@@ -36,6 +37,7 @@ public class DipendenteController {
     }
 
     // ENDPOINT PER MODIFICARE IL DIPENDENTE
+    // http://localhost:8080/api/dipendente/{id}
 
     @PutMapping("/dipendente{id}")
     public ResponseEntity<Dipendente> modificaDipendente(@PathVariable Long id, @RequestBody Dipendente dipendente){
@@ -44,6 +46,7 @@ public class DipendenteController {
     }
 
     // ENDPOINT PER ELIMINARE UN DIPENDENTE
+    // http://localhost:8080/api/dipendente/{id}/elimina
 
     @DeleteMapping("/dipendente/{id}/elimina")
     public ResponseEntity<?>  eliminaDipendente(@PathVariable Long id){
@@ -57,6 +60,7 @@ public class DipendenteController {
 
 
     // ENDPOINT PER ELIMINARE TUTTI I DIPENDENTI
+    // http://localhost:8080/api/dipendenti/eliminaTutti
     @DeleteMapping("/dipendenti/eliminaTutti")
     public ResponseEntity<?> eliminaTuttiDipendenti() {
         dipendenteService.eliminaTuttiDipendenti();
@@ -65,6 +69,7 @@ public class DipendenteController {
 
 
     // ENDPOINT PER RECUPERARE TUTTI I DIPENDENTI (con info aggiuntive tramite DTO)
+    // http://localhost:8080/api/dipendenti
 
     @GetMapping("/dipendenti")
     public ResponseEntity<?> recuperaDipendenti(){
@@ -92,6 +97,7 @@ public class DipendenteController {
 
 
     //ENDPOINT PER RECUPERARE UN DIPENDENTE TRAMITE ID
+    // http://localhost:8080/api/dipendente/{id}
     @GetMapping("dipendente/{id}")
     public ResponseEntity<?> recuperaDipendente(@PathVariable Long id) {
       Dipendente dipendente=dipendenteService.getDipendente(id);
@@ -107,6 +113,7 @@ public class DipendenteController {
 
 
     // Metodo per aggiornare l'immagine del profilo di un dipendente
+    // http://localhost:8080/api/dipendente/7/caricaImmagine?file
     @PostMapping("/dipendente/{id}/caricaImmagine")
     public ResponseEntity<?> caricaImmagine(@PathVariable Long id, @RequestParam("file") MultipartFile file) {
         try {

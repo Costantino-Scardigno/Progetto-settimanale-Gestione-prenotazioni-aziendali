@@ -30,6 +30,7 @@ public class PrenotazioneController {
     private ViaggioRepository viaggioRepository;
 
     // ENDPOINT PER CREARE UNA PRENOTAZIONE (RESTITUISCE DTO)
+    // http://localhost:8080/api/prenotazione
     @PostMapping("/prenotazione")
     public ResponseEntity<?> aggiungiPrenotazione(@RequestBody PrenotazioneDTO prenotazioneDTO) {
         if (prenotazioneDTO.getDipendenteId() == null) {
@@ -62,6 +63,7 @@ public class PrenotazioneController {
 
 
     //  ENDPOINT PER RECUPERARE LE PRENOTAZIONI (RESTITUISCE LISTA DI DTO)
+    // http://localhost:8080/api/prenotazioni
     @GetMapping("/prenotazioni")
     public ResponseEntity<?> recuperaPrenotazioni() {
         List<Prenotazione> prenotazioni = prenotazioneService.getAllPrenotazioni();
@@ -78,6 +80,7 @@ public class PrenotazioneController {
     }
 
     //  ENDPOINT PER ELIMINARE UNA PRENOTAZIONE
+    // http://localhost:8080/api/prenotazione/{{id}}/elimina
     @DeleteMapping("/prenotazione/{id}/elimina")
     public ResponseEntity<?> eliminaPrenotazione(@PathVariable Long id) {
         boolean eliminato = prenotazioneService.eliminaPrenotazione(id);
@@ -89,6 +92,7 @@ public class PrenotazioneController {
     }
 
     // ENDPOINT per eliminare tutte le prenotazioni
+    // http://localhost:8080/api/prenotazioni/eliminaTutte
     @DeleteMapping("/prenotazioni/eliminaTutte")
     public ResponseEntity<?> eliminaTutteLePrenotazioni() {
         prenotazioneService.eliminaTutteLePrenotazioni();

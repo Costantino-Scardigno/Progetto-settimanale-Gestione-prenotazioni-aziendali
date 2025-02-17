@@ -2,6 +2,8 @@ package com.example.ProgettoGestioneViaggiAziendali.controller;
 
 
 import com.example.ProgettoGestioneViaggiAziendali.Enum.StatoViaggio;
+import com.example.ProgettoGestioneViaggiAziendali.dto.DipendenteDTO;
+import com.example.ProgettoGestioneViaggiAziendali.dto.ViaggioDTO;
 import com.example.ProgettoGestioneViaggiAziendali.entity.Viaggio;
 import com.example.ProgettoGestioneViaggiAziendali.service.ViaggioService;
 import jakarta.validation.constraints.NotNull;
@@ -13,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api")
@@ -22,16 +25,28 @@ public class ViaggioController {
     private ViaggioService viaggioService;
 
     // ENDPOINT per recuperere tutti i viaggi
+    // http://localhost:8080/api/viaggi
     @GetMapping("/viaggi")
     public ResponseEntity<?> getAllViaggi() {
         List<Viaggio> viaggi=viaggioService.getAllViaggi();
         if (viaggi.isEmpty()){
            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("LA LISTA DEI VIAGGI E' VUOTA");
         }
-        return new ResponseEntity<>(viaggi, HttpStatus.OK);
+
+        List<ViaggioDTO> viaggioDTO = viaggi.stream()
+                .map(viaggio -> new ViaggioDTO(
+                        viaggio.getIdViaggio(),
+                        viaggio.getData(),
+                        viaggio.getDestinazione(),
+                        viaggio.getStato()
+                ))
+                .collect(Collectors.toList());
+
+        return new ResponseEntity<>(viaggioDTO, HttpStatus.OK);
     }
 
     // ENDPOINT per creare un viaggio
+    // http://localhost:8080/api/viaggio
     @PostMapping("/viaggio")
     public ResponseEntity<?> creaViaggio(@RequestBody @NotNull Viaggio viaggio){
         if (viaggio.getIdViaggio() !=null) {
@@ -42,6 +57,7 @@ public class ViaggioController {
     }
 
     // ENDPOINT per modificare lo stato
+    // http://localhost:8080/api/viaggio/{{id}}/stato
     @PutMapping("/viaggio/{id}/stato")
     public ResponseEntity<Viaggio> modificaStatoViaggio(@PathVariable Long id, @RequestBody StatoViaggio stato){
         Optional<Viaggio> viaggioModificato= viaggioService.modificaStato(id,stato);
@@ -51,6 +67,7 @@ public class ViaggioController {
     }
 
     // ENDPOINT per eliminare un viaggio
+    // http://localhost:8080/api/viaggio/7/elimina
 
     @DeleteMapping("/viaggio/{id}/elimina")
     public ResponseEntity<String> eliminaViaggio(@PathVariable Long id) {
@@ -62,6 +79,7 @@ public class ViaggioController {
         }
     }
     // ENDPOINT PER ELIMINARE TUTTI I VIAGGI
+    // http://localhost:8080/api/viaggi/eliminaTutti
 
     @DeleteMapping("/viaggi/eliminaTutti")
     public ResponseEntity<?> eliminaTuttiViaggi() {
